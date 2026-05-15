@@ -1,0 +1,742 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+--bg0:#0A0A0F;--bg1:#13131A;--bg2:#1A1A24;--bg3:#22222E;--bg4:#2A2A38;
+--t1:#EEEEF5;--t2:#9090A8;--t3:#50506A;
+--blue:#4A9EFF;--blue-dim:rgba(74,158,255,.12);--blue-text:#7CC4FF;
+--green:#3ECF8E;--green-dim:rgba(62,207,142,.1);--green-text:#5DDFAA;
+--red:#FF6B6B;--red-dim:rgba(255,107,107,.1);
+--amber:#FFB347;
+--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+}
+body{font-family:var(--font-sans);}
+.app{max-width:390px;margin:0 auto;background:var(--bg0);min-height:780px;border-radius:24px;overflow:hidden;border:0.5px solid var(--border2);display:flex;flex-direction:column;}
+.content{flex:1;overflow-y:auto;padding-bottom:4px;}
+.tab-page{display:none;}.tab-page.active{display:block;}
+
+.header{background:var(--bg1);padding:16px 16px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.app-title{font-size:19px;font-weight:500;color:var(--t1);display:flex;align-items:center;gap:7px;}
+.live-badge{font-size:10px;background:var(--green-dim);color:var(--green-text);border-radius:20px;padding:3px 10px;display:flex;align-items:center;gap:4px;border:0.5px solid rgba(62,207,142,.2);}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.update-time{font-size:10px;color:var(--t3);margin-top:3px;}
+
+.section{background:var(--bg1);margin-top:6px;padding:14px 16px;}
+.sec-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
+
+/* CONVERTER */
+.converter-card{background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);overflow:hidden;}
+.conv-row{display:flex;align-items:center;padding:14px 16px;cursor:pointer;gap:12px;transition:background .15s;position:relative;}
+.conv-row:hover{background:var(--bg3);}
+.conv-row+.conv-row{border-top:0.5px solid var(--border);}
+.conv-flag{font-size:24px;line-height:1;flex-shrink:0;}
+.conv-cur{flex:1;}
+.conv-code{font-size:13px;font-weight:500;color:var(--t2);}
+.conv-name{font-size:11px;color:var(--t3);}
+.conv-value{font-size:22px;font-weight:500;color:var(--t1);}
+.conv-value.accent{color:var(--blue-text);}
+.conv-divider{display:flex;align-items:center;justify-content:center;padding:5px 0;background:var(--bg2);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);}
+.swap-inline{background:var(--bg3);border:0.5px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+/* MULTI TARGET ROWS */
+.target-rows{border-top:0.5px solid var(--border);}
+.target-row{display:flex;align-items:center;padding:11px 16px;gap:10px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .15s;}
+.target-row:last-child{border-bottom:none;}
+.target-row:hover{background:var(--bg3);}
+.target-row-flag{font-size:20px;flex-shrink:0;}
+.target-row-info{flex:1;}
+.target-row-code{font-size:12px;font-weight:500;color:var(--t2);}
+.target-row-val{font-size:18px;font-weight:500;color:var(--blue-text);}
+.add-target-btn{display:flex;align-items:center;padding:10px 16px;gap:8px;cursor:pointer;border-top:0.5px solid var(--border);transition:background .15s;}
+.add-target-btn:hover{background:var(--bg3);}
+.add-target-btn span{font-size:12px;color:var(--t3);}
+
+/* INPUT */
+.amt-wrap{position:relative;}
+.cur-tag{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);font-weight:500;pointer-events:none;}
+.amt-input{width:100%;padding:13px 14px 13px 52px;border:0.5px solid var(--border);border-radius:12px;background:var(--bg2);font-size:20px;font-weight:500;color:var(--t1);font-family:var(--font-sans);}
+.amt-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(74,158,255,.12);}
+.amt-input::placeholder{color:var(--t3);}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;}
+.q-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:9px 4px;font-size:12px;color:var(--t2);cursor:pointer;text-align:center;transition:all .15s;}
+.q-btn:hover{background:var(--bg3);}
+.q-btn.on{background:var(--blue-dim);color:var(--blue-text);border-color:rgba(74,158,255,.3);}
+
+/* BOTTOM NAV */
+.bottom-nav{display:flex;background:var(--bg1);border-top:0.5px solid var(--border);padding:10px 0 8px;flex-shrink:0;}
+.nav-it{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:.3;transition:opacity .15s;}
+.nav-it.on{opacity:1;}
+.nav-it i{font-size:22px;color:var(--blue-text);}
+.nav-it span{font-size:10px;color:var(--t2);}
+.nav-it.on span{color:var(--blue-text);}
+
+/* SHEET */
+.sheet-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:200;align-items:flex-end;}
+.sheet{background:var(--bg1);border-radius:20px 20px 0 0;width:100%;max-height:540px;display:flex;flex-direction:column;border-top:0.5px solid var(--border2);}
+.sheet-hd{padding:14px 16px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sheet-title{font-size:16px;font-weight:500;color:var(--t1);}
+.close-btn{background:var(--bg2);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);}
+.cur-list{overflow-y:auto;flex:1;}
+.cur-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .1s;}
+.cur-opt:hover{background:var(--bg2);}
+.cur-opt.selected{background:var(--blue-dim);}
+
+/* EXPENSE */
+.budget-card{background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);padding:16px;}
+.budget-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.budget-label{font-size:11px;color:var(--t3);margin-bottom:3px;}
+.budget-main{display:flex;align-items:baseline;gap:5px;}
+.budget-amt{font-size:26px;font-weight:500;color:var(--t1);}
+.budget-cur-badge{font-size:11px;color:var(--t2);background:var(--bg3);border-radius:6px;padding:2px 7px;cursor:pointer;border:0.5px solid var(--border);}
+.edit-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--t2);cursor:pointer;}
+.progress-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:10px;}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.budget-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.stat-box{background:var(--bg3);border-radius:10px;padding:10px 12px;}
+.stat-label{font-size:10px;color:var(--t3);margin-bottom:3px;}
+.stat-val{font-size:15px;font-weight:500;}
+.add-exp-btn{width:100%;background:var(--blue-dim);border:0.5px solid rgba(74,158,255,.25);border-radius:12px;padding:13px;font-size:14px;color:var(--blue-text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s;}
+.add-exp-btn:hover{background:rgba(74,158,255,.2);}
+.expense-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:0.5px solid var(--border);}
+.expense-item:last-child{border-bottom:none;}
+.exp-icon{width:36px;height:36px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.exp-info{flex:1;min-width:0;}
+.exp-title{font-size:14px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exp-meta{font-size:11px;color:var(--t3);margin-top:1px;}
+.exp-who{font-size:10px;color:var(--blue-text);background:var(--blue-dim);border-radius:5px;padding:1px 6px;margin-left:4px;}
+.exp-right{text-align:right;flex-shrink:0;}
+.exp-val{font-size:13px;font-weight:500;color:var(--red);}
+.exp-cur{font-size:10px;color:var(--t3);}
+.del-btn{background:none;border:none;color:var(--t3);cursor:pointer;padding:4px;font-size:15px;}
+
+/* GROUP */
+.group-banner{background:var(--bg2);border-radius:12px;border:0.5px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.group-info{flex:1;}
+.group-name{font-size:13px;font-weight:500;color:var(--t1);}
+.group-members{font-size:11px;color:var(--t3);margin-top:1px;}
+.group-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:6px 11px;font-size:11px;color:var(--t2);cursor:pointer;}
+.sync-badge{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--green-text);}
+
+/* FORM */
+.form-field{margin-bottom:12px;}
+.form-label{font-size:11px;color:var(--t3);margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:11px 14px;border:0.5px solid var(--border);border-radius:10px;background:var(--bg2);font-size:14px;color:var(--t1);font-family:var(--font-sans);}
+.form-input:focus{outline:none;border-color:var(--blue);}
+.form-input::placeholder{color:var(--t3);}
+.form-select{width:100%;padding:11px 14px;border:0.5px solid var(--border);border-radius:10px;background:var(--bg2);font-size:14px;color:var(--t1);font-family:var(--font-sans);appearance:none;}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.cat-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:9px 4px;cursor:pointer;text-align:center;transition:all .15s;}
+.cat-btn:hover{background:var(--bg3);}
+.cat-btn.on{background:var(--blue-dim);border-color:rgba(74,158,255,.3);}
+.cat-emoji{font-size:17px;display:block;margin-bottom:2px;}
+.cat-name{font-size:9px;color:var(--t2);}
+.submit-btn{width:100%;background:var(--blue);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;color:#fff;cursor:pointer;margin-top:4px;}
+.submit-btn:hover{background:#5AADFF;}
+.danger-btn{background:var(--red-dim);border:0.5px solid rgba(255,107,107,.25);color:var(--red);border-radius:12px;padding:11px;font-size:13px;cursor:pointer;width:100%;margin-top:8px;}
+
+/* MAP */
+#mapContainer{width:100%;height:420px;background:var(--bg2);position:relative;overflow:hidden;}
+#mapIframe{width:100%;height:100%;border:none;}
+.map-overlay-btn{position:absolute;bottom:12px;right:12px;background:var(--bg1);border:0.5px solid var(--border2);border-radius:12px;padding:10px 14px;color:var(--blue-text);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;z-index:10;}
+.loc-status{background:var(--bg2);border-radius:12px;border:0.5px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.loc-dot{width:8px;height:8px;border-radius:50%;background:var(--t3);flex-shrink:0;}
+.loc-dot.active{background:var(--green);animation:blink 2s infinite;}
+.loc-text{font-size:13px;color:var(--t2);}
+.loc-coords{font-size:11px;color:var(--t3);margin-top:1px;}
+
+/* GROUP SETUP */
+.group-setup{padding:24px 16px;text-align:center;}
+.gs-title{font-size:16px;font-weight:500;color:var(--t1);margin-bottom:6px;}
+.gs-sub{font-size:12px;color:var(--t3);margin-bottom:20px;line-height:1.6;}
+.gs-input{width:100%;padding:13px 16px;border:0.5px solid var(--border);border-radius:12px;background:var(--bg2);font-size:16px;color:var(--t1);font-family:var(--font-sans);margin-bottom:10px;text-align:center;}
+.gs-input:focus{outline:none;border-color:var(--blue);}
+.gs-input::placeholder{color:var(--t3);}
+.gs-btn{width:100%;background:var(--blue);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;color:#fff;cursor:pointer;margin-bottom:8px;}
+.gs-or{font-size:11px;color:var(--t3);margin:12px 0;position:relative;}
+.gs-or::before,.gs-or::after{content:'';position:absolute;top:50%;width:38%;height:0.5px;background:var(--border2);}
+.gs-or::before{left:0;}.gs-or::after{right:0;}
+.gs-join-row{display:flex;gap:8px;}
+.gs-join-input{flex:1;padding:11px 14px;border:0.5px solid var(--border);border-radius:10px;background:var(--bg2);font-size:14px;color:var(--t1);font-family:var(--font-sans);}
+.gs-join-input:focus{outline:none;border-color:var(--blue);}
+.gs-join-input::placeholder{color:var(--t3);}
+.gs-join-btn{background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--t2);cursor:pointer;white-space:nowrap;}
+
+.ldots{display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 0 0;}
+.ld{width:4px;height:4px;border-radius:50%;background:var(--blue);animation:pulse 1s infinite;}
+.ld:nth-child(2){animation-delay:.2s;}.ld:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--t1);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+
+<h2 class="sr-only">트래블 — 환율·경비·지도 여행 앱 v4</h2>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="app-title"><i class="ti ti-world" aria-hidden="true" style="font-size:20px;color:var(--blue-text);"></i>트래블</div>
+      <div class="update-time" id="updTime">불러오는 중...</div>
+    </div>
+    <span class="live-badge" id="liveBadge"><span class="live-dot"></span>실시간</span>
+  </div>
+
+  <div class="content">
+    <!-- ===== EXCHANGE TAB ===== -->
+    <div class="tab-page active" id="tab-exchange">
+      <div class="section" style="padding-bottom:10px;">
+        <div class="sec-label">환율 변환</div>
+        <div class="converter-card">
+          <!-- FROM row -->
+          <div class="conv-row" onclick="openPicker('from')">
+            <span class="conv-flag" id="c1Flag">🇰🇷</span>
+            <div class="conv-cur"><div class="conv-code" id="c1Code">KRW</div><div class="conv-name" id="c1Name">대한민국 원</div></div>
+            <div><div class="conv-value" id="c1Val">100,000</div></div>
+            <i class="ti ti-chevron-right" aria-hidden="true" style="font-size:14px;color:var(--t3);"></i>
+          </div>
+          <div class="conv-divider">
+            <div class="swap-inline" onclick="swapCur()"><i class="ti ti-arrows-up-down" aria-hidden="true" style="font-size:15px;color:var(--t2);"></i></div>
+          </div>
+          <!-- PRIMARY TARGET -->
+          <div class="conv-row" onclick="openPicker('to0')">
+            <span class="conv-flag" id="t0Flag">🇺🇸</span>
+            <div class="conv-cur"><div class="conv-code" id="t0Code">USD</div><div class="conv-name" id="t0Name">미국 달러</div></div>
+            <div><div class="conv-value accent" id="t0Val">—</div></div>
+            <i class="ti ti-chevron-right" aria-hidden="true" style="font-size:14px;color:var(--t3);"></i>
+          </div>
+          <!-- EXTRA TARGET ROWS -->
+          <div class="target-rows" id="targetRows"></div>
+          <!-- ADD BUTTON -->
+          <div class="add-target-btn" onclick="addTargetCur()">
+            <i class="ti ti-plus" aria-hidden="true" style="font-size:16px;color:var(--t3);"></i>
+            <span>통화 추가</span>
+          </div>
+        </div>
+      </div>
+      <div class="section" style="padding-top:10px;">
+        <div class="sec-label">금액 입력</div>
+        <div class="amt-wrap">
+          <span class="cur-tag" id="inputTag">KRW</span>
+          <input class="amt-input" type="number" id="amtInput" value="100000" oninput="calc()" placeholder="금액 입력"/>
+        </div>
+        <div class="quick-grid">
+          <button class="q-btn" onclick="setAmt(10000,this)">1만</button>
+          <button class="q-btn" onclick="setAmt(50000,this)">5만</button>
+          <button class="q-btn on" onclick="setAmt(100000,this)">10만</button>
+          <button class="q-btn" onclick="setAmt(500000,this)">50만</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EXPENSE TAB ===== -->
+    <div class="tab-page" id="tab-expense">
+      <!-- GROUP SETUP (shown when no group) -->
+      <div id="groupSetupArea">
+        <div class="section">
+          <div class="group-setup">
+            <i class="ti ti-users" aria-hidden="true" style="font-size:36px;color:var(--blue-text);margin-bottom:12px;display:block;"></i>
+            <div class="gs-title">그룹 경비 공유</div>
+            <div class="gs-sub">그룹을 만들면 같은 코드를 가진 사람들과<br>경비 내역을 실시간으로 공유할 수 있어요.</div>
+            <input class="gs-input" id="myNameInput" placeholder="내 이름 입력" maxlength="10"/>
+            <button class="gs-btn" onclick="createGroup()">새 그룹 만들기</button>
+            <div class="gs-or">또는</div>
+            <div class="gs-join-row">
+              <input class="gs-join-input" id="joinCodeInput" placeholder="그룹 코드 입력 (예: TRAVEL7)" maxlength="10"/>
+              <button class="gs-join-btn" onclick="joinGroup()">참여</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPENSE MAIN (shown when in group) -->
+      <div id="expenseMainArea" style="display:none;">
+        <div class="section">
+          <div class="group-banner">
+            <i class="ti ti-users" aria-hidden="true" style="font-size:22px;color:var(--blue-text);"></i>
+            <div class="group-info">
+              <div class="group-name" id="groupNameDisplay">—</div>
+              <div class="group-members" id="groupMembersDisplay">멤버 불러오는 중...</div>
+            </div>
+            <button class="group-btn" onclick="showGroupCode()">코드 보기</button>
+          </div>
+        </div>
+        <div class="section" style="padding-top:10px;">
+          <div class="sec-label">총 여행 경비</div>
+          <div class="budget-card">
+            <div class="budget-top">
+              <div>
+                <div class="budget-label">예산</div>
+                <div class="budget-main">
+                  <span class="budget-amt" id="budgetAmt">0</span>
+                  <span class="budget-cur-badge" id="budgetCurBadge" onclick="openBudgetCurPicker()">KRW ▾</span>
+                </div>
+              </div>
+              <button class="edit-btn" onclick="editBudget()"><i class="ti ti-edit" aria-hidden="true" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>수정</button>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%;background:var(--green);"></div></div>
+            <div class="budget-stats">
+              <div class="stat-box"><div class="stat-label">지출</div><div class="stat-val" id="spentAmt" style="color:var(--red);">0</div></div>
+              <div class="stat-box"><div class="stat-label">남은 금액</div><div class="stat-val" id="remainAmt" style="color:var(--green-text);">0</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="section" style="padding-top:10px;">
+          <button class="add-exp-btn" onclick="openExpenseForm()">
+            <i class="ti ti-plus" aria-hidden="true" style="font-size:18px;"></i> 지출 추가
+          </button>
+        </div>
+        <div class="section" style="padding-top:10px;">
+          <div class="sec-label">지출 내역 <span style="color:var(--blue-text);margin-left:4px;" id="syncStatus"></span></div>
+          <div id="expenseList"><div style="text-align:center;padding:24px 0;color:var(--t3);font-size:13px;">지출 내역이 없습니다</div></div>
+        </div>
+        <div class="section" style="padding-top:4px;">
+          <button class="danger-btn" onclick="leaveGroup()"><i class="ti ti-logout" aria-hidden="true" style="font-size:14px;vertical-align:-1px;margin-right:4px;"></i>그룹 나가기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MAP TAB ===== -->
+    <div class="tab-page" id="tab-map">
+      <div class="section" style="padding-bottom:10px;">
+        <div class="loc-status" id="locStatus">
+          <div class="loc-dot" id="locDot"></div>
+          <div><div class="loc-text" id="locText">위치 정보를 가져오는 중...</div><div class="loc-coords" id="locCoords"></div></div>
+        </div>
+      </div>
+      <div id="mapContainer">
+        <iframe id="mapIframe" src="about:blank" allowfullscreen></iframe>
+        <button class="map-overlay-btn" onclick="getLocation()">
+          <i class="ti ti-current-location" aria-hidden="true" style="font-size:16px;"></i> 현재 위치
+        </button>
+      </div>
+      <div class="section" style="padding-top:12px;">
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;">
+          <i class="ti ti-info-circle" aria-hidden="true" style="font-size:14px;vertical-align:-1px;color:var(--blue-text);margin-right:4px;"></i>
+          '현재 위치' 버튼을 누르면 GPS로 위치를 파악합니다.<br>지도를 핀치/스크롤로 확대·축소할 수 있어요.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-it on" id="nav-exchange" onclick="switchTab('exchange')">
+      <i class="ti ti-currency-dollar" aria-hidden="true"></i><span>환율</span>
+    </div>
+    <div class="nav-it" id="nav-expense" onclick="switchTab('expense')">
+      <i class="ti ti-wallet" aria-hidden="true" style="color:var(--t3);"></i><span>경비</span>
+    </div>
+    <div class="nav-it" id="nav-map" onclick="switchTab('map')">
+      <i class="ti ti-map-2" aria-hidden="true" style="color:var(--t3);"></i><span>지도</span>
+    </div>
+  </div>
+</div>
+
+<!-- CURRENCY PICKER SHEET -->
+<div class="sheet-overlay" id="sheetOverlay">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">통화 선택</span>
+      <button class="close-btn" onclick="closeSheet()" aria-label="닫기"><i class="ti ti-x" style="font-size:16px;" aria-hidden="true"></i></button>
+    </div>
+    <div class="cur-list" id="curList"></div>
+  </div>
+</div>
+
+<!-- BUDGET EDIT SHEET -->
+<div class="sheet-overlay" id="budgetSheet">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">예산 설정</span>
+      <button class="close-btn" onclick="closeSub('budgetSheet')" aria-label="닫기"><i class="ti ti-x" style="font-size:16px;" aria-hidden="true"></i></button>
+    </div>
+    <div style="padding:16px;">
+      <div class="form-field">
+        <label class="form-label">총 여행 예산</label>
+        <input class="form-input" type="number" id="budgetInput" placeholder="예: 1000000" style="font-size:18px;"/>
+      </div>
+      <button class="submit-btn" onclick="saveBudget()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE FORM SHEET -->
+<div class="sheet-overlay" id="expenseSheet">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">지출 추가</span>
+      <button class="close-btn" onclick="closeSub('expenseSheet')" aria-label="닫기"><i class="ti ti-x" style="font-size:16px;" aria-hidden="true"></i></button>
+    </div>
+    <div style="padding:16px;overflow-y:auto;max-height:460px;">
+      <div class="form-field">
+        <label class="form-label">카테고리</label>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">통화</label>
+        <select class="form-select" id="expCurSel"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">지출 금액</label>
+        <input class="form-input" type="number" id="expAmt" placeholder="예: 15000"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">상세 내역</label>
+        <input class="form-input" type="text" id="expDetail" placeholder="예: 편의점, 점심 식사..."/>
+      </div>
+      <button class="submit-btn" onclick="addExpense()">추가하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP CODE SHEET -->
+<div class="sheet-overlay" id="groupCodeSheet">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">그룹 코드</span>
+      <button class="close-btn" onclick="closeSub('groupCodeSheet')" aria-label="닫기"><i class="ti ti-x" style="font-size:16px;" aria-hidden="true"></i></button>
+    </div>
+    <div style="padding:24px 16px;text-align:center;">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:12px;">이 코드를 공유하면 같은 그룹에 참여할 수 있어요</div>
+      <div id="groupCodeDisplay" style="font-size:36px;font-weight:500;color:var(--blue-text);letter-spacing:6px;padding:20px;background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);margin-bottom:16px;"></div>
+      <button class="submit-btn" onclick="copyCode()" style="background:var(--bg3);color:var(--t1);border:0.5px solid var(--border2);">
+        <i class="ti ti-copy" aria-hidden="true" style="font-size:15px;vertical-align:-2px;margin-right:6px;"></i>코드 복사
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ──
+const CURS=[
+  {code:'KRW',name:'대한민국 원',flag:'🇰🇷'},
+  {code:'USD',name:'미국 달러',flag:'🇺🇸'},
+  {code:'JPY',name:'일본 엔',flag:'🇯🇵'},
+  {code:'EUR',name:'유로',flag:'🇪🇺'},
+  {code:'CNY',name:'중국 위안',flag:'🇨🇳'},
+  {code:'GBP',name:'영국 파운드',flag:'🇬🇧'},
+  {code:'HKD',name:'홍콩 달러',flag:'🇭🇰'},
+  {code:'THB',name:'태국 바트',flag:'🇹🇭'},
+  {code:'SGD',name:'싱가포르 달러',flag:'🇸🇬'},
+  {code:'AUD',name:'호주 달러',flag:'🇦🇺'},
+  {code:'VND',name:'베트남 동',flag:'🇻🇳'},
+  {code:'MYR',name:'말레이시아 링깃',flag:'🇲🇾'},
+  {code:'CAD',name:'캐나다 달러',flag:'🇨🇦'},
+  {code:'CHF',name:'스위스 프랑',flag:'🇨🇭'},
+  {code:'PHP',name:'필리핀 페소',flag:'🇵🇭'},
+];
+const CATS=[
+  {id:'food',emoji:'🍜',name:'식비'},{id:'transport',emoji:'🚌',name:'교통'},
+  {id:'hotel',emoji:'🏨',name:'숙박'},{id:'shop',emoji:'🛍️',name:'쇼핑'},
+  {id:'ticket',emoji:'🎫',name:'입장권'},{id:'cafe',emoji:'☕',name:'카페'},
+  {id:'medical',emoji:'💊',name:'의약'},{id:'etc',emoji:'📦',name:'기타'},
+];
+
+// ── STATE ──
+let rates={},fromC='KRW',targetCurs=['USD'],picking='',pickerTargetIdx=0;
+let budget=0,budgetCur='KRW',expenses=[];
+let groupCode='',myName='',selCat='food';
+let mapLoaded=false,syncTimer=null;
+
+// ── API ──
+async function fetchRates(){
+  const apis=[
+    ()=>fetch('https://api.exchangerate-api.com/v4/latest/KRW').then(r=>r.json()).then(d=>d.rates),
+    ()=>fetch('https://open.er-api.com/v6/latest/KRW').then(r=>r.json()).then(d=>d.rates),
+  ];
+  for(const api of apis){
+    try{
+      const r=await api();
+      if(r&&r.USD){
+        rates=r;rates['KRW']=1;
+        document.getElementById('updTime').textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+        document.getElementById('liveBadge').innerHTML='<span class="live-dot"></span>실시간';
+        calc();return;
+      }
+    }catch(e){}
+  }
+  rates={KRW:1,USD:0.000735,JPY:0.109,EUR:0.000678,CNY:0.00533,GBP:0.000578,HKD:0.00574,THB:0.0268,SGD:0.000993,AUD:0.00114,VND:18.7,MYR:0.00344,CAD:0.001003,CHF:0.000657,PHP:0.0429};
+  document.getElementById('updTime').textContent='오프라인 환율 (근사값)';
+  document.getElementById('liveBadge').innerHTML='<i class="ti ti-wifi-off" style="font-size:11px;"></i> 오프라인';
+  calc();
+}
+
+function getRate(f,t){
+  if(!rates[t]||!rates[f])return null;
+  if(f==='KRW')return rates[t];
+  return rates[t]/rates[f];
+}
+function fmt(v,code){
+  if(code==='JPY'||code==='KRW'||code==='VND')return Math.round(v).toLocaleString('ko-KR');
+  if(v<0.01)return v.toFixed(5);
+  return v.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// ── EXCHANGE ──
+function calc(){
+  const amt=parseFloat(document.getElementById('amtInput').value)||0;
+  const fc=CURS.find(c=>c.code===fromC);
+  document.getElementById('c1Flag').textContent=fc.flag;
+  document.getElementById('c1Code').textContent=fc.code;
+  document.getElementById('c1Name').textContent=fc.name;
+  document.getElementById('c1Val').textContent=amt.toLocaleString('ko-KR');
+  document.getElementById('inputTag').textContent=fromC;
+  // primary target
+  updateTargetRow('t0',targetCurs[0],amt);
+  // extra targets
+  renderExtraTargets(amt);
+}
+
+function updateTargetRow(prefix,code,amt){
+  const cur=CURS.find(c=>c.code===code);
+  if(!cur)return;
+  document.getElementById(prefix+'Flag').textContent=cur.flag;
+  document.getElementById(prefix+'Code').textContent=cur.code;
+  document.getElementById(prefix+'Name').textContent=cur.name;
+  const rate=getRate(fromC,code);
+  document.getElementById(prefix+'Val').textContent=rate!==null?fmt(amt*rate,code)+'':'—';
+}
+
+function renderExtraTargets(amt){
+  const amt2=amt||parseFloat(document.getElementById('amtInput').value)||0;
+  const el=document.getElementById('targetRows');
+  if(targetCurs.length<=1){el.innerHTML='';return;}
+  el.innerHTML=targetCurs.slice(1).map((code,i)=>{
+    const cur=CURS.find(c=>c.code===code)||{flag:'',code,name:''};
+    const rate=getRate(fromC,code);
+    const val=rate!==null?fmt(amt2*rate,code):'—';
+    return`<div class="target-row">
+      <span class="target-row-flag">${cur.flag}</span>
+      <div class="target-row-info">
+        <div class="target-row-code">${cur.code}</div>
+        <div class="target-row-val" id="extra${i}Val">${val}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:5px 9px;font-size:11px;color:var(--t2);cursor:pointer;" onclick="openPicker('to${i+1}')">${cur.code} ▾</div>
+        <button class="del-btn" onclick="removeTargetCur(${i+1})" aria-label="제거"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addTargetCur(){
+  if(targetCurs.length>=5){showToast('최대 5개까지 추가할 수 있어요');return;}
+  const unused=CURS.find(c=>!targetCurs.includes(c.code)&&c.code!==fromC);
+  if(unused)targetCurs.push(unused.code);
+  calc();
+}
+function removeTargetCur(idx){targetCurs.splice(idx,1);calc();}
+function swapCur(){const tmp=fromC;fromC=targetCurs[0];targetCurs[0]=tmp;calc();}
+
+// ── CURRENCY PICKER ──
+function openPicker(which){
+  picking=which;
+  document.getElementById('sheetOverlay').style.display='flex';
+  const curCode=which==='from'?fromC:(which==='to0'?targetCurs[0]:targetCurs[parseInt(which.replace('to',''))]);
+  document.getElementById('curList').innerHTML=CURS.map(cur=>`
+    <div class="cur-opt${cur.code===curCode?' selected':''}" onclick="selectCur('${cur.code}')">
+      <span style="font-size:22px;">${cur.flag}</span>
+      <div><div style="font-size:14px;font-weight:500;color:var(--t1);">${cur.code}</div>
+        <div style="font-size:12px;color:var(--t3);">${cur.name}</div></div>
+    </div>`).join('');
+}
+function closeSheet(){document.getElementById('sheetOverlay').style.display='none';}
+function selectCur(code){
+  if(picking==='from')fromC=code;
+  else if(picking==='to0')targetCurs[0]=code;
+  else{const idx=parseInt(picking.replace('to',''));targetCurs[idx]=code;}
+  closeSheet();calc();
+}
+
+// budget currency picker
+function openBudgetCurPicker(){
+  picking='budgetCur';
+  document.getElementById('sheetOverlay').style.display='flex';
+  document.getElementById('curList').innerHTML=CURS.map(cur=>`
+    <div class="cur-opt${cur.code===budgetCur?' selected':''}" onclick="selectBudgetCur('${cur.code}')">
+      <span style="font-size:22px;">${cur.flag}</span>
+      <div><div style="font-size:14px;font-weight:500;color:var(--t1);">${cur.code}</div>
+        <div style="font-size:12px;color:var(--t3);">${cur.name}</div></div>
+    </div>`).join('');
+}
+function selectBudgetCur(code){budgetCur=code;document.getElementById('budgetCurBadge').textContent=code+' ▾';closeSheet();updateBudgetUI();}
+
+// ── EXPENSE / GROUP ──
+function generateCode(){return Math.random().toString(36).slice(2,8).toUpperCase();}
+
+function createGroup(){
+  const name=document.getElementById('myNameInput').value.trim();
+  if(!name){showToast('이름을 입력해주세요');return;}
+  myName=name;
+  groupCode=generateCode();
+  initGroup();
+}
+function joinGroup(){
+  const name=document.getElementById('myNameInput').value.trim();
+  const code=document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  if(!name){showToast('이름을 입력해주세요');return;}
+  if(!code){showToast('그룹 코드를 입력해주세요');return;}
+  myName=name;groupCode=code;
+  initGroup();
+}
+function initGroup(){
+  document.getElementById('groupSetupArea').style.display='none';
+  document.getElementById('expenseMainArea').style.display='block';
+  document.getElementById('groupNameDisplay').textContent='그룹 '+groupCode;
+  loadGroupData();
+  syncTimer=setInterval(loadGroupData,8000);
+  showToast('그룹에 참여했어요!');
+}
+
+async function loadGroupData(){
+  try{
+    const key='group_'+groupCode;
+    const res=await window.storage.get(key,true);
+    if(res&&res.value){
+      const data=JSON.parse(res.value);
+      expenses=data.expenses||[];
+      budget=data.budget||0;
+      budgetCur=data.budgetCur||'KRW';
+      const members=data.members||[];
+      if(!members.includes(myName)){members.push(myName);}
+      data.members=members;
+      await window.storage.set(key,JSON.stringify(data),true);
+      document.getElementById('groupMembersDisplay').textContent=members.join(', ');
+      document.getElementById('budgetCurBadge').textContent=budgetCur+' ▾';
+    }else{
+      const init={expenses:[],budget:0,budgetCur:'KRW',members:[myName]};
+      await window.storage.set('group_'+groupCode,JSON.stringify(init),true);
+      document.getElementById('groupMembersDisplay').textContent=myName;
+    }
+    renderExpenses();
+  }catch(e){document.getElementById('syncStatus').textContent='⚠ 동기화 실패';}
+}
+
+async function saveGroupData(){
+  try{
+    const key='group_'+groupCode;
+    const res=await window.storage.get(key,true);
+    const existing=res?JSON.parse(res.value):{members:[myName]};
+    if(!existing.members.includes(myName))existing.members.push(myName);
+    const data={...existing,expenses,budget,budgetCur};
+    await window.storage.set(key,JSON.stringify(data),true);
+    document.getElementById('syncStatus').textContent='✓ 동기화됨';
+    setTimeout(()=>{const el=document.getElementById('syncStatus');if(el)el.textContent='';},2000);
+  }catch(e){document.getElementById('syncStatus').textContent='⚠ 저장 실패';}
+}
+
+function renderExpenses(){
+  updateBudgetUI();
+  const el=document.getElementById('expenseList');
+  if(!expenses||expenses.length===0){el.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--t3);font-size:13px;">지출 내역이 없습니다</div>';return;}
+  el.innerHTML=expenses.map((e,i)=>{
+    const cat=CATS.find(c=>c.id===e.cat)||CATS[7];
+    return`<div class="expense-item">
+      <div class="exp-icon">${cat.emoji}</div>
+      <div class="exp-info">
+        <div class="exp-title">${e.detail||cat.name}<span class="exp-who">${e.who||'나'}</span></div>
+        <div class="exp-meta">${cat.name} · ${new Date(e.date).toLocaleDateString('ko-KR',{month:'short',day:'numeric'})}</div>
+      </div>
+      <div class="exp-right">
+        <div class="exp-val">-${Number(e.amt).toLocaleString('ko-KR')}</div>
+        <div class="exp-cur">${e.cur||budgetCur}</div>
+      </div>
+      <button class="del-btn" onclick="deleteExpense(${i})" aria-label="삭제"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>`;
+  }).join('');
+}
+function updateBudgetUI(){
+  const spent=expenses.reduce((s,e)=>{
+    const r=getRate(e.cur||budgetCur,budgetCur);
+    return s+(r?e.amt*r:e.amt);
+  },0);
+  const remain=budget-spent;
+  const pct=budget>0?Math.min(100,Math.round(spent/budget*100)):0;
+  document.getElementById('budgetAmt').textContent=budget.toLocaleString('ko-KR');
+  document.getElementById('spentAmt').textContent=fmt(spent,budgetCur);
+  document.getElementById('remainAmt').textContent=fmt(remain,budgetCur);
+  const fill=document.getElementById('progressFill');
+  fill.style.width=pct+'%';
+  fill.style.background=pct>80?'var(--red)':pct>50?'var(--amber)':'var(--green)';
+  document.getElementById('remainAmt').style.color=remain<0?'var(--red)':'var(--green-text)';
+}
+async function deleteExpense(i){expenses.splice(i,1);renderExpenses();await saveGroupData();}
+function editBudget(){document.getElementById('budgetInput').value=budget||'';document.getElementById('budgetSheet').style.display='flex';}
+async function saveBudget(){
+  const v=parseFloat(document.getElementById('budgetInput').value);
+  if(v>=0)budget=v;
+  closeSub('budgetSheet');renderExpenses();await saveGroupData();
+}
+
+function buildCatGrid(){
+  document.getElementById('catGrid').innerHTML=CATS.map(c=>`
+    <button class="cat-btn${c.id===selCat?' on':''}" onclick="selCatFn('${c.id}',this)">
+      <span class="cat-emoji">${c.emoji}</span><span class="cat-name">${c.name}</span>
+    </button>`).join('');
+  const sel=document.getElementById('expCurSel');
+  sel.innerHTML=CURS.map(c=>`<option value="${c.code}"${c.code===budgetCur?' selected':''}>${c.flag} ${c.code} - ${c.name}</option>`).join('');
+}
+function selCatFn(id,btn){selCat=id;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+function openExpenseForm(){buildCatGrid();document.getElementById('expenseSheet').style.display='flex';}
+async function addExpense(){
+  const amt=parseFloat(document.getElementById('expAmt').value);
+  const detail=document.getElementById('expDetail').value.trim();
+  const cur=document.getElementById('expCurSel').value;
+  if(!amt||amt<=0){showToast('금액을 입력해주세요');return;}
+  expenses.unshift({cat:selCat,amt,detail,cur,who:myName,date:Date.now()});
+  document.getElementById('expAmt').value='';
+  document.getElementById('expDetail').value='';
+  closeSub('expenseSheet');renderExpenses();await saveGroupData();
+}
+
+function leaveGroup(){
+  if(syncTimer)clearInterval(syncTimer);
+  groupCode='';myName='';expenses=[];budget=0;
+  document.getElementById('groupSetupArea').style.display='block';
+  document.getElementById('expenseMainArea').style.display='none';
+  document.getElementById('myNameInput').value='';
+  document.getElementById('joinCodeInput').value='';
+}
+function showGroupCode(){
+  document.getElementById('groupCodeDisplay').textContent=groupCode;
+  document.getElementById('groupCodeSheet').style.display='flex';
+}
+function copyCode(){
+  navigator.clipboard.writeText(groupCode).then(()=>showToast('코드가 복사됐어요!')).catch(()=>showToast(groupCode));
+}
+
+// ── MAP ──
+function loadMap(lat,lon){
+  document.getElementById('mapIframe').src=`https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.05},${lat-0.04},${lon+0.05},${lat+0.04}&layer=mapnik&marker=${lat},${lon}`;
+  mapLoaded=true;
+}
+function getLocation(){
+  document.getElementById('locText').textContent='위치 파악 중...';
+  document.getElementById('locDot').className='loc-dot';
+  if(!navigator.geolocation){loadMap(37.5665,126.978);document.getElementById('locText').textContent='GPS 미지원 (기본: 서울)';return;}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const{latitude:lat,longitude:lon}=pos.coords;
+    document.getElementById('locDot').className='loc-dot active';
+    document.getElementById('locText').textContent='현재 위치 확인됨';
+    document.getElementById('locCoords').textContent=`${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+    loadMap(lat,lon);
+  },()=>{loadMap(37.5665,126.978);document.getElementById('locText').textContent='권한 필요 (기본: 서울)';},{enableHighAccuracy:true,timeout:10000});
+}
+
+// ── UTILS ──
+function switchTab(name){
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-it').forEach(n=>{n.classList.remove('on');n.querySelectorAll('i').forEach(i=>i.style.color='var(--t3)');});
+  document.getElementById('tab-'+name).classList.add('active');
+  const nav=document.getElementById('nav-'+name);
+  nav.classList.add('on');nav.querySelectorAll('i').forEach(i=>i.style.color='var(--blue-text)');
+  if(name==='map'&&!mapLoaded)getLocation();
+}
+function closeSub(id){document.getElementById(id).style.display='none';}
+function setAmt(v,btn){document.getElementById('amtInput').value=v;document.querySelectorAll('.q-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');calc();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+fetchRates();
+setInterval(fetchRates,60000);
+</script>
