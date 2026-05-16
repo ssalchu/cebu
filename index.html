@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0A0A0F"/>
+<meta name="format-detection" content="telephone=no"/>
+<title>세부에서 생긴 일</title>
+<link rel="manifest" href="./manifest.json"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg0:#0A0A0F;--bg1:#13131A;--bg2:#1A1A24;--bg3:#22222E;--bg4:#2A2A38;
+  --t1:#EEEEF5;--t2:#9090A8;--t3:#50506A;
+  --blue:#4A9EFF;--blue-dim:rgba(74,158,255,.12);--blue-text:#7CC4FF;
+  --green:#3ECF8E;--green-dim:rgba(62,207,142,.1);--green-text:#5DDFAA;
+  --red:#FF6B6B;--red-dim:rgba(255,107,107,.1);
+  --amber:#FFB347;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+}
+html{height:100%;background:#000;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+body{height:100%;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;display:flex;justify-content:center;background:#000;overflow:hidden;}
+.app{width:100%;max-width:430px;height:100dvh;min-height:-webkit-fill-available;background:var(--bg0);display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));}
+.tab-page{display:none;}.tab-page.active{display:block;}
+
+/* HEADER */
+.header{background:var(--bg1);padding:calc(env(safe-area-inset-top,20px) + 10px) 16px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;}
+.app-title{font-size:20px;font-weight:700;color:var(--t1);}
+.app-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.live-badge{font-size:10px;background:var(--green-dim);color:var(--green-text);border-radius:20px;padding:3px 10px;display:flex;align-items:center;gap:4px;border:0.5px solid rgba(62,207,142,.2);flex-shrink:0;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* SECTION */
+.section{background:var(--bg1);margin-top:6px;padding:14px 16px;}
+.sec-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
+
+/* CONVERTER */
+.converter-card{background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);overflow:hidden;}
+.conv-row{display:flex;align-items:center;padding:14px 16px;cursor:pointer;gap:12px;transition:background .15s;-webkit-tap-highlight-color:transparent;}
+.conv-row:active{background:var(--bg3);}
+.conv-row+.conv-row{border-top:0.5px solid var(--border);}
+.conv-flag{font-size:24px;line-height:1;flex-shrink:0;}
+.conv-cur{flex:1;}
+.conv-code{font-size:13px;font-weight:500;color:var(--t2);}
+.conv-name{font-size:11px;color:var(--t3);}
+.conv-value{font-size:22px;font-weight:500;color:var(--t1);}
+.conv-value.accent{color:var(--blue-text);}
+.conv-divider{display:flex;align-items:center;justify-content:center;padding:5px 0;background:var(--bg2);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);}
+.swap-inline{background:var(--bg3);border:0.5px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.target-rows{border-top:0.5px solid var(--border);}
+.target-row{display:flex;align-items:center;padding:11px 16px;gap:10px;border-bottom:0.5px solid var(--border);}
+.target-row:last-child{border-bottom:none;}
+.target-row-flag{font-size:20px;flex-shrink:0;}
+.target-row-info{flex:1;}
+.target-row-code{font-size:12px;font-weight:500;color:var(--t2);}
+.target-row-val{font-size:18px;font-weight:500;color:var(--blue-text);}
+.add-target-btn{display:flex;align-items:center;padding:10px 16px;gap:8px;cursor:pointer;border-top:0.5px solid var(--border);-webkit-tap-highlight-color:transparent;}
+.add-target-btn:active{background:var(--bg3);}
+.add-target-btn span{font-size:12px;color:var(--t3);}
+.amt-wrap{position:relative;}
+.cur-tag{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3);font-weight:500;pointer-events:none;}
+.amt-input{width:100%;padding:13px 14px 13px 52px;border:0.5px solid var(--border);border-radius:12px;background:var(--bg2);font-size:20px;font-weight:500;color:var(--t1);font-family:inherit;}
+.amt-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(74,158,255,.12);}
+.amt-input::placeholder{color:var(--t3);}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;}
+.q-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:9px 4px;font-size:12px;color:var(--t2);cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
+.q-btn:active{background:var(--bg3);}
+.q-btn.on{background:var(--blue-dim);color:var(--blue-text);border-color:rgba(74,158,255,.3);}
+
+/* BOTTOM NAV */
+.bottom-nav{display:flex;background:var(--bg1);border-top:0.5px solid var(--border);padding:10px 0 env(safe-area-inset-bottom,10px);position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:100;flex-shrink:0;}
+.nav-it{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:.3;transition:opacity .15s;-webkit-tap-highlight-color:transparent;}
+.nav-it.on{opacity:1;}
+.nav-it i{font-size:22px;color:var(--blue-text);}
+.nav-it span{font-size:10px;color:var(--t2);}
+.nav-it.on span{color:var(--blue-text);}
+
+/* SHEET */
+.sheet-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;align-items:flex-end;justify-content:center;}
+.sheet{background:var(--bg1);border-radius:20px 20px 0 0;width:100%;max-width:430px;max-height:85dvh;display:flex;flex-direction:column;border-top:0.5px solid var(--border2);padding-bottom:env(safe-area-inset-bottom,0px);}
+.sheet-hd{padding:14px 16px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sheet-title{font-size:16px;font-weight:500;color:var(--t1);}
+.close-btn{background:var(--bg2);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);}
+.cur-list{overflow-y:auto;flex:1;}
+.cur-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.cur-opt:active{background:var(--bg2);}
+.cur-opt.selected{background:var(--blue-dim);}
+
+/* EXPENSE */
+.budget-card{background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);padding:16px;}
+.budget-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.budget-label{font-size:11px;color:var(--t3);margin-bottom:3px;}
+.budget-main{display:flex;align-items:baseline;gap:5px;}
+.budget-amt{font-size:26px;font-weight:500;color:var(--t1);}
+.budget-cur-badge{font-size:11px;color:var(--t2);background:var(--bg3);border-radius:6px;padding:2px 7px;cursor:pointer;border:0.5px solid var(--border);}
+.edit-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--t2);cursor:pointer;}
+.progress-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:10px;}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.budget-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.stat-box{background:var(--bg3);border-radius:10px;padding:10px 12px;}
+.stat-label{font-size:10px;color:var(--t3);margin-bottom:3px;}
+.stat-val{font-size:15px;font-weight:500;}
+.add-exp-btn{width:100%;background:var(--blue-dim);border:0.5px solid rgba(74,158,255,.25);border-radius:12px;padding:13px;font-size:14px;color:var(--blue-text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.expense-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:0.5px solid var(--border);}
+.expense-item:last-child{border-bottom:none;}
+.exp-icon{width:36px;height:36px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.exp-info{flex:1;min-width:0;}
+.exp-title{font-size:14px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exp-meta{font-size:11px;color:var(--t3);margin-top:1px;}
+.exp-who{font-size:10px;color:var(--blue-text);background:var(--blue-dim);border-radius:5px;padding:1px 6px;margin-left:4px;}
+.exp-right{text-align:right;flex-shrink:0;}
+.exp-val{font-size:13px;font-weight:500;color:var(--red);}
+.exp-cur-label{font-size:10px;color:var(--t3);}
+.del-btn{background:none;border:none;color:var(--t3);cursor:pointer;padding:4px;font-size:15px;}
+.group-banner{background:var(--bg2);border-radius:12px;border:0.5px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.group-info{flex:1;}
+.group-name{font-size:13px;font-weight:500;color:var(--t1);}
+.group-members{font-size:11px;color:var(--t3);margin-top:1px;}
+.group-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:6px 11px;font-size:11px;color:var(--t2);cursor:pointer;white-space:nowrap;}
+.form-field{margin-bottom:12px;}
+.form-label{font-size:11px;color:var(--t3);margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:11px 14px;border:0.5px solid var(--border);border-radius:10px;background:var(--bg2);font-size:14px;color:var(--t1);font-family:inherit;}
+.form-input:focus{outline:none;border-color:var(--blue);}
+.form-input::placeholder{color:var(--t3);}
+.form-select{width:100%;padding:11px 14px;border:0.5px solid var(--border);border-radius:10px;background:var(--bg2);font-size:14px;color:var(--t1);font-family:inherit;appearance:none;}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.cat-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:9px 4px;cursor:pointer;text-align:center;}
+.cat-btn.on{background:var(--blue-dim);border-color:rgba(74,158,255,.3);}
+.cat-emoji{font-size:17px;display:block;margin-bottom:2px;}
+.cat-name{font-size:9px;color:var(--t2);}
+.submit-btn{width:100%;background:var(--blue);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;color:#fff;cursor:pointer;margin-top:4px;}
+.danger-btn{background:var(--red-dim);border:0.5px solid rgba(255,107,107,.25);color:var(--red);border-radius:12px;padding:11px;font-size:13px;cursor:pointer;width:100%;margin-top:8px;}
+.group-setup{padding:24px 0;text-align:center;}
+.gs-title{font-size:16px;font-weight:500;color:var(--t1);margin-bottom:6px;}
+.gs-sub{font-size:12px;color:var(--t3);margin-bottom:20px;line-height:1.6;}
+.gs-input{width:100%;padding:13px 16px;border:0.5px solid var(--border);border-radius:12px;background:var(--bg2);font-size:16px;color:var(--t1);font-family:inherit;margin-bottom:10px;text-align:center;}
+.gs-input:focus{outline:none;border-color:var(--blue);}
+.gs-input::placeholder{color:var(--t3);}
+.gs-btn{width:100%;background:var(--blue);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:500;color:#fff;cursor:pointer;margin-bottom:8px;}
+.gs-or{font-size:11px;color:var(--t3);margin:14px 0;position:relative;text-align:center;}
+.gs-or::before,.gs-or::after{content:'';position:absolute;top:50%;width:38%;height:0.5px;background:var(--border2);}
+.gs-or::before{left:0;}.gs-or::after{right:0;}
+.gs-join-row{display:flex;gap:8px;}
+.gs-join-input{flex:1;padding:11px 14px;border:0.5px solid var(--border);border-radius:10px;background:var(--bg2);font-size:14px;color:var(--t1);font-family:inherit;text-transform:uppercase;}
+.gs-join-input:focus{outline:none;border-color:var(--blue);}
+.gs-join-input::placeholder{color:var(--t3);text-transform:none;}
+.gs-join-btn{background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--t2);cursor:pointer;}
+
+/* MAP */
+#mapContainer{width:100%;height:calc(100dvh - 230px);min-height:300px;background:var(--bg2);position:relative;}
+#gmap{width:100%;height:100%;}
+.map-toolbar{display:flex;gap:8px;padding:10px 16px;background:var(--bg1);border-bottom:0.5px solid var(--border);}
+.map-search-wrap{flex:1;position:relative;}
+.map-search-input{width:100%;padding:10px 14px 10px 38px;border:0.5px solid var(--border);border-radius:10px;background:var(--bg2);font-size:13px;color:var(--t1);font-family:inherit;}
+.map-search-input:focus{outline:none;border-color:var(--blue);}
+.map-search-input::placeholder{color:var(--t3);}
+.map-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--t3);pointer-events:none;}
+.map-loc-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.pin-list-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:0.5px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.pin-list-item:last-child{border-bottom:none;}
+.pin-emoji{font-size:20px;flex-shrink:0;margin-top:1px;}
+.pin-info{flex:1;min-width:0;}
+.pin-name{font-size:13px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pin-addr{font-size:11px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pin-who{font-size:10px;color:var(--blue-text);background:var(--blue-dim);border-radius:5px;padding:1px 6px;}
+.pin-del{background:none;border:none;color:var(--t3);cursor:pointer;padding:4px;font-size:14px;flex-shrink:0;}
+.search-results{background:var(--bg1);border-radius:0 0 16px 16px;border:0.5px solid var(--border);border-top:none;max-height:200px;overflow-y:auto;position:absolute;left:16px;right:16px;top:calc(100% - 6px);z-index:50;}
+.search-result-item{padding:11px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.search-result-item:last-child{border-bottom:none;}
+.search-result-item:active{background:var(--bg2);}
+.sr-name{font-size:13px;font-weight:500;color:var(--t1);}
+.sr-addr{font-size:11px;color:var(--t3);margin-top:2px;}
+.sr-rating{font-size:11px;color:var(--amber);margin-top:1px;}
+
+/* PLACE DETAIL SHEET */
+.place-detail{padding:16px;overflow-y:auto;}
+.place-name{font-size:18px;font-weight:600;color:var(--t1);margin-bottom:4px;}
+.place-type{font-size:12px;color:var(--t3);margin-bottom:10px;}
+.place-rating{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.stars{color:var(--amber);font-size:14px;}
+.rating-num{font-size:13px;color:var(--t2);}
+.place-addr{font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5;}
+.place-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.place-action-btn{border:0.5px solid var(--border);border-radius:10px;padding:11px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.action-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+.action-secondary{background:var(--bg2);color:var(--t2);}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--t1);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;max-width:calc(100% - 40px);text-align:center;}
+.toast.show{opacity:1;}
+
+/* LOADING */
+.fb-loading{display:flex;align-items:center;justify-content:center;gap:6px;padding:20px;color:var(--t3);font-size:13px;}
+.ld{width:4px;height:4px;border-radius:50%;background:var(--blue);animation:pulse 1s infinite;}
+.ld:nth-child(2){animation-delay:.2s;}.ld:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="app-title">세부에서 생긴 일 ✈️</div>
+      <div class="app-sub" id="updTime">환율 불러오는 중...</div>
+    </div>
+    <span class="live-badge" id="liveBadge"><span class="live-dot"></span>실시간</span>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== 환율 TAB ===== -->
+    <div class="tab-page active" id="tab-exchange">
+      <div class="section" style="padding-bottom:10px;">
+        <div class="sec-label">환율 변환</div>
+        <div class="converter-card">
+          <div class="conv-row" onclick="openPicker('from')">
+            <span class="conv-flag" id="c1Flag">🇰🇷</span>
+            <div class="conv-cur"><div class="conv-code" id="c1Code">KRW</div><div class="conv-name" id="c1Name">대한민국 원</div></div>
+            <div><div class="conv-value" id="c1Val">100,000</div></div>
+            <i class="ti ti-chevron-right" style="font-size:14px;color:var(--t3);"></i>
+          </div>
+          <div class="conv-divider">
+            <div class="swap-inline" onclick="swapCur()"><i class="ti ti-arrows-up-down" style="font-size:15px;color:var(--t2);"></i></div>
+          </div>
+          <div class="conv-row" onclick="openPicker('to0')">
+            <span class="conv-flag" id="t0Flag">🇺🇸</span>
+            <div class="conv-cur"><div class="conv-code" id="t0Code">USD</div><div class="conv-name" id="t0Name">미국 달러</div></div>
+            <div><div class="conv-value accent" id="t0Val">—</div></div>
+            <i class="ti ti-chevron-right" style="font-size:14px;color:var(--t3);"></i>
+          </div>
+          <div class="target-rows" id="targetRows"></div>
+          <div class="add-target-btn" onclick="addTargetCur()">
+            <i class="ti ti-plus" style="font-size:16px;color:var(--t3);"></i>
+            <span>통화 추가</span>
+          </div>
+        </div>
+      </div>
+      <div class="section" style="padding-top:10px;">
+        <div class="sec-label">금액 입력</div>
+        <div class="amt-wrap">
+          <span class="cur-tag" id="inputTag">KRW</span>
+          <input class="amt-input" type="number" id="amtInput" value="100000" oninput="calc()" placeholder="금액 입력" inputmode="numeric"/>
+        </div>
+        <div class="quick-grid">
+          <button class="q-btn" onclick="setAmt(10000,this)">1만</button>
+          <button class="q-btn" onclick="setAmt(50000,this)">5만</button>
+          <button class="q-btn on" onclick="setAmt(100000,this)">10만</button>
+          <button class="q-btn" onclick="setAmt(500000,this)">50만</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 경비 TAB ===== -->
+    <div class="tab-page" id="tab-expense">
+      <div id="groupSetupArea">
+        <div class="section">
+          <div class="group-setup">
+            <i class="ti ti-users" style="font-size:36px;color:var(--blue-text);margin-bottom:12px;display:block;"></i>
+            <div class="gs-title">그룹 경비 공유</div>
+            <div class="gs-sub">그룹을 만들면 같은 코드를 가진 사람들과<br>경비 내역을 실시간으로 공유할 수 있어요.</div>
+            <input class="gs-input" id="myNameInput" placeholder="내 이름 입력" maxlength="10"/>
+            <button class="gs-btn" onclick="createGroup()">새 그룹 만들기</button>
+            <div class="gs-or">또는</div>
+            <div class="gs-join-row">
+              <input class="gs-join-input" id="joinCodeInput" placeholder="그룹 코드 입력" maxlength="10"/>
+              <button class="gs-join-btn" onclick="joinGroup()">참여</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="expenseMainArea" style="display:none;">
+        <div class="section">
+          <div class="group-banner">
+            <i class="ti ti-users" style="font-size:22px;color:var(--blue-text);"></i>
+            <div class="group-info">
+              <div class="group-name" id="groupNameDisplay">—</div>
+              <div class="group-members" id="groupMembersDisplay">멤버 불러오는 중...</div>
+            </div>
+            <button class="group-btn" onclick="showGroupCode()">코드 보기</button>
+          </div>
+        </div>
+        <div class="section" style="padding-top:10px;">
+          <div class="sec-label">총 여행 경비</div>
+          <div class="budget-card">
+            <div class="budget-top">
+              <div>
+                <div class="budget-label">예산</div>
+                <div class="budget-main">
+                  <span class="budget-amt" id="budgetAmt">0</span>
+                  <span class="budget-cur-badge" id="budgetCurBadge" onclick="openBudgetCurPicker()">KRW ▾</span>
+                </div>
+              </div>
+              <button class="edit-btn" onclick="editBudget()">
+                <i class="ti ti-edit" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>수정
+              </button>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%;background:var(--green);"></div></div>
+            <div class="budget-stats">
+              <div class="stat-box"><div class="stat-label">지출</div><div class="stat-val" id="spentAmt" style="color:var(--red);">0</div></div>
+              <div class="stat-box"><div class="stat-label">남은 금액</div><div class="stat-val" id="remainAmt" style="color:var(--green-text);">0</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="section" style="padding-top:10px;">
+          <button class="add-exp-btn" onclick="openExpenseForm()">
+            <i class="ti ti-plus" style="font-size:18px;"></i> 지출 추가
+          </button>
+        </div>
+        <div class="section" style="padding-top:10px;">
+          <div class="sec-label">지출 내역 <span id="syncStatus" style="color:var(--green-text);font-size:10px;margin-left:4px;"></span></div>
+          <div id="expenseList"><div class="fb-loading"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>
+        </div>
+        <div class="section" style="padding-top:4px;">
+          <button class="danger-btn" onclick="leaveGroup()">
+            <i class="ti ti-logout" style="font-size:14px;vertical-align:-1px;margin-right:4px;"></i>그룹 나가기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 지도 TAB ===== -->
+    <div class="tab-page" id="tab-map">
+      <!-- 검색 툴바 -->
+      <div class="map-toolbar" style="position:relative;">
+        <div class="map-search-wrap">
+          <i class="ti ti-search map-search-icon"></i>
+          <input class="map-search-input" id="mapSearchInput" placeholder="맛집, 명소 검색..." oninput="onSearchInput()" onkeydown="if(event.key==='Enter')doSearch()"/>
+          <div class="search-results" id="searchResults" style="display:none;"></div>
+        </div>
+        <button class="map-loc-btn" onclick="getLocation()">
+          <i class="ti ti-current-location" style="font-size:15px;"></i>
+          <span>현위치</span>
+        </button>
+      </div>
+      <!-- 지도 -->
+      <div id="mapContainer">
+        <div id="gmap"></div>
+      </div>
+      <!-- 저장된 핀 목록 -->
+      <div class="section" style="padding-top:12px;">
+        <div class="sec-label">📍 저장된 장소 <span id="pinCount" style="color:var(--blue-text);"></span></div>
+        <div id="pinList"><div style="text-align:center;padding:16px 0;color:var(--t3);font-size:13px;">저장된 장소가 없습니다</div></div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-it on" id="nav-exchange" onclick="switchTab('exchange')">
+      <i class="ti ti-currency-dollar"></i><span>환율</span>
+    </div>
+    <div class="nav-it" id="nav-expense" onclick="switchTab('expense')">
+      <i class="ti ti-wallet" style="color:var(--t3);"></i><span>경비</span>
+    </div>
+    <div class="nav-it" id="nav-map" onclick="switchTab('map')">
+      <i class="ti ti-map-2" style="color:var(--t3);"></i><span>지도</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SHEETS ===== -->
+<!-- Currency Picker -->
+<div class="sheet-overlay" id="sheetOverlay">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">통화 선택</span>
+      <button class="close-btn" onclick="closeSheet()"><i class="ti ti-x" style="font-size:16px;"></i></button>
+    </div>
+    <div class="cur-list" id="curList"></div>
+  </div>
+</div>
+<!-- Budget Edit -->
+<div class="sheet-overlay" id="budgetSheet">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">예산 설정</span>
+      <button class="close-btn" onclick="closeSub('budgetSheet')"><i class="ti ti-x" style="font-size:16px;"></i></button>
+    </div>
+    <div style="padding:16px;">
+      <div class="form-field">
+        <label class="form-label">총 여행 예산</label>
+        <input class="form-input" type="number" id="budgetInput" placeholder="예: 1000000" style="font-size:18px;" inputmode="numeric"/>
+      </div>
+      <button class="submit-btn" onclick="saveBudget()">저장</button>
+    </div>
+  </div>
+</div>
+<!-- Expense Form -->
+<div class="sheet-overlay" id="expenseSheet">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">지출 추가</span>
+      <button class="close-btn" onclick="closeSub('expenseSheet')"><i class="ti ti-x" style="font-size:16px;"></i></button>
+    </div>
+    <div style="padding:16px;overflow-y:auto;max-height:60dvh;">
+      <div class="form-field">
+        <label class="form-label">카테고리</label>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">통화</label>
+        <select class="form-select" id="expCurSel"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">지출 금액</label>
+        <input class="form-input" type="number" id="expAmt" placeholder="예: 15000" inputmode="decimal"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">상세 내역</label>
+        <input class="form-input" type="text" id="expDetail" placeholder="예: 편의점, 점심 식사..."/>
+      </div>
+      <button class="submit-btn" onclick="addExpense()">추가하기</button>
+    </div>
+  </div>
+</div>
+<!-- Group Code -->
+<div class="sheet-overlay" id="groupCodeSheet">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">그룹 코드</span>
+      <button class="close-btn" onclick="closeSub('groupCodeSheet')"><i class="ti ti-x" style="font-size:16px;"></i></button>
+    </div>
+    <div style="padding:24px 16px;text-align:center;">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:12px;">이 코드를 공유하면 같은 그룹에 참여할 수 있어요</div>
+      <div id="groupCodeDisplay" style="font-size:36px;font-weight:700;color:var(--blue-text);letter-spacing:6px;padding:20px;background:var(--bg2);border-radius:16px;border:0.5px solid var(--border);margin-bottom:16px;"></div>
+      <button class="submit-btn" onclick="copyCode()" style="background:var(--bg3);color:var(--t1);border:0.5px solid var(--border2);">
+        <i class="ti ti-copy" style="font-size:15px;vertical-align:-2px;margin-right:6px;"></i>코드 복사
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Place Detail -->
+<div class="sheet-overlay" id="placeSheet">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title">장소 정보</span>
+      <button class="close-btn" onclick="closeSub('placeSheet')"><i class="ti ti-x" style="font-size:16px;"></i></button>
+    </div>
+    <div class="place-detail" id="placeDetail"></div>
+  </div>
+</div>
+
+<!-- ===== FIREBASE ===== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, collection, onSnapshot, setDoc, addDoc, deleteDoc, updateDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBthzlWmyt5YcSdPlWLGmto4WjLVMwme98",
+  authDomain: "travel-app-a79b8.firebaseapp.com",
+  projectId: "travel-app-a79b8",
+  storageBucket: "travel-app-a79b8.firebasestorage.app",
+  messagingSenderId: "279994658821",
+  appId: "1:279994658821:web:a5fca2a0df5fa276876c6c",
+  measurementId: "G-MVC3VYZYSJ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ── 경비 리스너 ──
+let expenseUnsub = null;
+let groupUnsub = null;
+let pinUnsub = null;
+
+window.fbSubscribeGroup = function(groupCode) {
+  // 그룹 메타 (예산, 멤버)
+  if (groupUnsub) groupUnsub();
+  groupUnsub = onSnapshot(doc(db, 'groups', groupCode), snap => {
+    if (snap.exists()) {
+      const data = snap.data();
+      window._budget = data.budget || 0;
+      window._budgetCur = data.budgetCur || 'KRW';
+      const members = data.members || [];
+      document.getElementById('groupMembersDisplay').textContent = members.join(', ');
+      document.getElementById('budgetCurBadge').textContent = window._budgetCur + ' ▾';
+      window.updateBudgetUI();
+    }
+  });
+
+  // 지출 목록
+  if (expenseUnsub) expenseUnsub();
+  expenseUnsub = onSnapshot(collection(db, 'groups', groupCode, 'expenses'), snap => {
+    window._expenses = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
+    window.renderExpenses();
+    const el = document.getElementById('syncStatus');
+    if (el) { el.textContent = '✓ 실시간 연결됨'; setTimeout(() => { el.textContent = ''; }, 2000); }
+  });
+
+  // 핀 목록
+  if (pinUnsub) pinUnsub();
+  pinUnsub = onSnapshot(collection(db, 'groups', groupCode, 'pins'), snap => {
+    window._pins = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    window.renderPinList();
+    window.renderMapPins();
+  });
+};
+
+window.fbCreateGroup = async function(groupCode, myName) {
+  await setDoc(doc(db, 'groups', groupCode), {
+    budget: 0, budgetCur: 'KRW',
+    members: [myName],
+    createdAt: serverTimestamp()
+  });
+};
+
+window.fbJoinGroup = async function(groupCode, myName) {
+  const ref = doc(db, 'groups', groupCode);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) throw new Error('존재하지 않는 그룹 코드예요');
+  const data = snap.data();
+  const members = data.members || [];
+  if (!members.includes(myName)) {
+    members.push(myName);
+    await updateDoc(ref, { members });
+  }
+};
+
+window.fbSaveBudget = async function(groupCode, budget, budgetCur) {
+  await updateDoc(doc(db, 'groups', groupCode), { budget, budgetCur });
+};
+
+window.fbAddExpense = async function(groupCode, expense) {
+  await addDoc(collection(db, 'groups', groupCode, 'expenses'), {
+    ...expense, date: serverTimestamp()
+  });
+};
+
+window.fbDeleteExpense = async function(groupCode, expId) {
+  await deleteDoc(doc(db, 'groups', groupCode, 'expenses', expId));
+};
+
+window.fbAddPin = async function(groupCode, pin) {
+  await addDoc(collection(db, 'groups', groupCode, 'pins'), {
+    ...pin, savedAt: serverTimestamp()
+  });
+};
+
+window.fbDeletePin = async function(groupCode, pinId) {
+  await deleteDoc(doc(db, 'groups', groupCode, 'pins', pinId));
+};
+
+window.fbUnsubAll = function() {
+  if (expenseUnsub) expenseUnsub();
+  if (groupUnsub) groupUnsub();
+  if (pinUnsub) pinUnsub();
+};
+</script>
+
+<!-- ===== GOOGLE MAPS ===== -->
+<script>
+window.GMAP_KEY = 'AIzaSyAPXZDHyj9yAOttfU8Zm2efKPYd3nnahm8';
+window._map = null;
+window._mapMarkers = [];
+window._searchService = null;
+window._geocoder = null;
+window._autocomplete = null;
+window._infoWindow = null;
+window._searchTimer = null;
+
+window.initMap = function() {
+  const cebu = { lat: 10.3157, lng: 123.8854 };
+  window._map = new google.maps.Map(document.getElementById('gmap'), {
+    center: cebu,
+    zoom: 13,
+    styles: [
+      { elementType:'geometry', stylers:[{color:'#1a1a24'}] },
+      { elementType:'labels.text.fill', stylers:[{color:'#9090a8'}] },
+      { elementType:'labels.text.stroke', stylers:[{color:'#0a0a0f'}] },
+      { featureType:'road', elementType:'geometry', stylers:[{color:'#22222e'}] },
+      { featureType:'road', elementType:'geometry.stroke', stylers:[{color:'#13131a'}] },
+      { featureType:'road.highway', elementType:'geometry', stylers:[{color:'#2a2a38'}] },
+      { featureType:'water', elementType:'geometry', stylers:[{color:'#0d1b2a'}] },
+      { featureType:'poi', elementType:'geometry', stylers:[{color:'#1e1e26'}] },
+      { featureType:'poi.park', elementType:'geometry', stylers:[{color:'#0d2a1a'}] },
+      { featureType:'transit', stylers:[{color:'#22222e'}] }
+    ],
+    disableDefaultUI: true,
+    zoomControl: true,
+    zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER }
+  });
+  window._searchService = new google.maps.places.PlacesService(window._map);
+  window._geocoder = new google.maps.Geocoder();
+  window._infoWindow = new google.maps.InfoWindow();
+  window.renderMapPins();
+};
+
+window.onSearchInput = function() {
+  clearTimeout(window._searchTimer);
+  const q = document.getElementById('mapSearchInput').value.trim();
+  if (!q) { document.getElementById('searchResults').style.display = 'none'; return; }
+  window._searchTimer = setTimeout(() => doSearch(), 500);
+};
+
+window.doSearch = function() {
+  const q = document.getElementById('mapSearchInput').value.trim();
+  if (!q || !window._map) return;
+  const req = {
+    query: q + ' 세부 필리핀',
+    location: window._map.getCenter(),
+    radius: 5000,
+    fields: ['place_id','name','formatted_address','geometry','rating','types','photos']
+  };
+  window._searchService.textSearch(req, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK && results.length) {
+      showSearchResults(results.slice(0, 8));
+    } else {
+      document.getElementById('searchResults').style.display = 'none';
+      showToast('검색 결과가 없어요');
+    }
+  });
+};
+
+function showSearchResults(results) {
+  const el = document.getElementById('searchResults');
+  el.innerHTML = results.map((p, i) => {
+    const stars = p.rating ? '⭐ ' + p.rating : '';
+    const type = (p.types || []).includes('restaurant') ? '🍽️' :
+                 (p.types || []).includes('cafe') ? '☕' :
+                 (p.types || []).includes('tourist_attraction') ? '🗺️' : '📍';
+    return `<div class="search-result-item" onclick="selectPlace(${i})">
+      <div class="sr-name">${type} ${p.name}</div>
+      <div class="sr-addr">${p.formatted_address || ''}</div>
+      ${stars ? `<div class="sr-rating">${stars}</div>` : ''}
+    </div>`;
+  }).join('');
+  el.style.display = 'block';
+  window._lastSearchResults = results;
+}
+
+window.selectPlace = function(idx) {
+  document.getElementById('searchResults').style.display = 'none';
+  document.getElementById('mapSearchInput').value = '';
+  const place = window._lastSearchResults[idx];
+  if (!place || !place.geometry) return;
+  window._map.panTo(place.geometry.location);
+  window._map.setZoom(16);
+  showPlaceDetail(place);
+};
+
+window.showPlaceDetail = function(place) {
+  const type = (place.types || []).includes('restaurant') ? '🍽️ 식당' :
+               (place.types || []).includes('cafe') ? '☕ 카페' :
+               (place.types || []).includes('tourist_attraction') ? '🗺️ 관광지' : '📍 장소';
+  const stars = place.rating ? '⭐'.repeat(Math.round(place.rating)) : '';
+  document.getElementById('placeDetail').innerHTML = `
+    <div class="place-name">${place.name}</div>
+    <div class="place-type">${type}</div>
+    ${place.rating ? `<div class="place-rating"><span class="stars">${stars}</span><span class="rating-num">${place.rating} / 5</span></div>` : ''}
+    <div class="place-addr"><i class="ti ti-map-pin" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--t3);"></i>${place.formatted_address || '주소 없음'}</div>
+    <div class="place-actions">
+      <button class="place-action-btn action-primary" onclick="savePin(${JSON.stringify({name:place.name,address:place.formatted_address||'',lat:place.geometry.location.lat(),lng:place.geometry.location.lng(),type:(place.types||[])[0]||'place',rating:place.rating||0}).replace(/"/g,'&quot;')})">
+        <i class="ti ti-bookmark" style="font-size:15px;"></i> 저장
+      </button>
+      <button class="place-action-btn action-secondary" onclick="closeSub('placeSheet')">
+        <i class="ti ti-x" style="font-size:15px;"></i> 닫기
+      </button>
+    </div>`;
+  document.getElementById('placeSheet').style.display = 'flex';
+};
+
+window.savePin = async function(pinData) {
+  if (!window._groupCode) { showToast('경비 탭에서 그룹에 먼저 참여해주세요'); return; }
+  try {
+    await window.fbAddPin(window._groupCode, { ...pinData, savedBy: window._myName });
+    closeSub('placeSheet');
+    showToast('📍 장소가 저장됐어요! 친구들에게도 보여요');
+  } catch(e) { showToast('저장 실패: ' + e.message); }
+};
+
+window.renderMapPins = function() {
+  if (!window._map) return;
+  window._mapMarkers.forEach(m => m.setMap(null));
+  window._mapMarkers = [];
+  (window._pins || []).forEach(pin => {
+    const emoji = pin.type === 'restaurant' ? '🍽️' : pin.type === 'cafe' ? '☕' : '📍';
+    const marker = new google.maps.Marker({
+      position: { lat: pin.lat, lng: pin.lng },
+      map: window._map,
+      title: pin.name,
+      label: { text: emoji, fontSize: '20px' },
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 0,
+      }
+    });
+    marker.addListener('click', () => {
+      window._infoWindow.setContent(`
+        <div style="background:#1A1A24;color:#EEEEF5;padding:10px 12px;border-radius:10px;font-family:-apple-system,sans-serif;min-width:160px;">
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${emoji} ${pin.name}</div>
+          <div style="font-size:11px;color:#9090A8;margin-bottom:4px;">${pin.address || ''}</div>
+          <div style="font-size:10px;color:#7CC4FF;">저장: ${pin.savedBy || '?'}</div>
+        </div>`);
+      window._infoWindow.open(window._map, marker);
+    });
+    window._mapMarkers.push(marker);
+  });
+};
+
+window.getLocation = function() {
+  if (!navigator.geolocation) { showToast('GPS를 지원하지 않아요'); return; }
+  showToast('위치 파악 중...');
+  navigator.geolocation.getCurrentPosition(pos => {
+    const latlng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    if (window._map) { window._map.panTo(latlng); window._map.setZoom(15); }
+    showToast('현재 위치로 이동했어요');
+  }, () => showToast('위치 권한이 필요해요'), { enableHighAccuracy: true, timeout: 10000 });
+};
+
+window.renderPinList = function() {
+  const pins = window._pins || [];
+  document.getElementById('pinCount').textContent = pins.length ? `(${pins.length})` : '';
+  const el = document.getElementById('pinList');
+  if (!pins.length) {
+    el.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--t3);font-size:13px;">저장된 장소가 없습니다</div>';
+    return;
+  }
+  el.innerHTML = pins.map(pin => {
+    const emoji = pin.type === 'restaurant' ? '🍽️' : pin.type === 'cafe' ? '☕' : '📍';
+    return `<div class="pin-list-item" onclick="flyToPin(${pin.lat},${pin.lng})">
+      <span class="pin-emoji">${emoji}</span>
+      <div class="pin-info">
+        <div class="pin-name">${pin.name}</div>
+        <div class="pin-addr">${pin.address || ''}</div>
+        <span class="pin-who">${pin.savedBy || '?'}</span>
+      </div>
+      <button class="pin-del" onclick="event.stopPropagation();deletePin('${pin.id}')"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+    </div>`;
+  }).join('');
+};
+
+window.flyToPin = function(lat, lng) {
+  switchTab('map');
+  if (window._map) { window._map.panTo({lat,lng}); window._map.setZoom(16); }
+};
+
+window.deletePin = async function(pinId) {
+  if (!window._groupCode) return;
+  await window.fbDeletePin(window._groupCode, pinId);
+  showToast('핀이 삭제됐어요');
+};
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPXZDHyj9yAOttfU8Zm2efKPYd3nnahm8&libraries=places&callback=initMap&language=ko"></script>
+
+<!-- ===== APP LOGIC ===== -->
+<script>
+const CURS = [
+  {code:'KRW',name:'대한민국 원',flag:'🇰🇷'},
+  {code:'USD',name:'미국 달러',flag:'🇺🇸'},
+  {code:'JPY',name:'일본 엔',flag:'🇯🇵'},
+  {code:'EUR',name:'유로',flag:'🇪🇺'},
+  {code:'CNY',name:'중국 위안',flag:'🇨🇳'},
+  {code:'GBP',name:'영국 파운드',flag:'🇬🇧'},
+  {code:'HKD',name:'홍콩 달러',flag:'🇭🇰'},
+  {code:'THB',name:'태국 바트',flag:'🇹🇭'},
+  {code:'SGD',name:'싱가포르 달러',flag:'🇸🇬'},
+  {code:'AUD',name:'호주 달러',flag:'🇦🇺'},
+  {code:'VND',name:'베트남 동',flag:'🇻🇳'},
+  {code:'MYR',name:'말레이시아 링깃',flag:'🇲🇾'},
+  {code:'CAD',name:'캐나다 달러',flag:'🇨🇦'},
+  {code:'CHF',name:'스위스 프랑',flag:'🇨🇭'},
+  {code:'PHP',name:'필리핀 페소',flag:'🇵🇭'},
+];
+const CATS = [
+  {id:'food',emoji:'🍜',name:'식비'},{id:'transport',emoji:'🚌',name:'교통'},
+  {id:'hotel',emoji:'🏨',name:'숙박'},{id:'shop',emoji:'🛍️',name:'쇼핑'},
+  {id:'ticket',emoji:'🎫',name:'입장권'},{id:'cafe',emoji:'☕',name:'카페'},
+  {id:'medical',emoji:'💊',name:'의약'},{id:'etc',emoji:'📦',name:'기타'},
+];
+
+let rates = {}, fromC = 'KRW', targetCurs = ['USD'], picking = '';
+window._budget = 0; window._budgetCur = 'KRW';
+window._expenses = []; window._pins = [];
+window._groupCode = ''; window._myName = '';
+let selCat = 'food';
+
+// ── 환율 API ──
+async function fetchRates() {
+  const apis = [
+    () => fetch('https://api.exchangerate-api.com/v4/latest/KRW').then(r=>r.json()).then(d=>d.rates),
+    () => fetch('https://open.er-api.com/v6/latest/KRW').then(r=>r.json()).then(d=>d.rates),
+  ];
+  for (const api of apis) {
+    try {
+      const r = await api();
+      if (r && r.USD) {
+        rates = r; rates['KRW'] = 1;
+        document.getElementById('updTime').textContent = '환율 업데이트 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+        document.getElementById('liveBadge').innerHTML = '<span class="live-dot"></span>실시간';
+        calc(); return;
+      }
+    } catch(e) {}
+  }
+  rates = {KRW:1,USD:0.000735,JPY:0.109,EUR:0.000678,CNY:0.00533,GBP:0.000578,HKD:0.00574,THB:0.0268,SGD:0.000993,AUD:0.00114,VND:18.7,MYR:0.00344,CAD:0.001003,CHF:0.000657,PHP:0.0429};
+  document.getElementById('updTime').textContent = '오프라인 환율 (근사값)';
+  calc();
+}
+
+function getRate(f, t) {
+  if (!rates[t] || !rates[f]) return null;
+  return f === 'KRW' ? rates[t] : rates[t] / rates[f];
+}
+function fmt(v, code) {
+  if (['JPY','KRW','VND'].includes(code)) return Math.round(v).toLocaleString('ko-KR');
+  if (v < 0.01) return v.toFixed(5);
+  return v.toLocaleString('ko-KR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// ── 환율 UI ──
+function calc() {
+  const amt = parseFloat(document.getElementById('amtInput').value) || 0;
+  const fc = CURS.find(c=>c.code===fromC);
+  document.getElementById('c1Flag').textContent = fc.flag;
+  document.getElementById('c1Code').textContent = fc.code;
+  document.getElementById('c1Name').textContent = fc.name;
+  document.getElementById('c1Val').textContent = amt.toLocaleString('ko-KR');
+  document.getElementById('inputTag').textContent = fromC;
+  const tc0 = CURS.find(c=>c.code===targetCurs[0]);
+  if (tc0) {
+    document.getElementById('t0Flag').textContent = tc0.flag;
+    document.getElementById('t0Code').textContent = tc0.code;
+    document.getElementById('t0Name').textContent = tc0.name;
+    const r = getRate(fromC, targetCurs[0]);
+    document.getElementById('t0Val').textContent = r !== null ? fmt(amt*r, targetCurs[0]) : '—';
+  }
+  renderExtraTargets(amt);
+}
+function renderExtraTargets(amt) {
+  const el = document.getElementById('targetRows');
+  if (targetCurs.length <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = targetCurs.slice(1).map((code,i) => {
+    const cur = CURS.find(c=>c.code===code) || {flag:'',code,name:''};
+    const r = getRate(fromC, code);
+    return `<div class="target-row">
+      <span class="target-row-flag">${cur.flag}</span>
+      <div class="target-row-info">
+        <div class="target-row-code">${cur.code}</div>
+        <div class="target-row-val">${r!==null?fmt(amt*r,code):'—'}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:5px 9px;font-size:11px;color:var(--t2);cursor:pointer;" onclick="openPicker('to${i+1}')">${cur.code} ▾</div>
+        <button class="del-btn" onclick="removeTargetCur(${i+1})"><i class="ti ti-x"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addTargetCur() {
+  if (targetCurs.length >= 5) { showToast('최대 5개까지 추가할 수 있어요'); return; }
+  const unused = CURS.find(c=>!targetCurs.includes(c.code)&&c.code!==fromC);
+  if (unused) targetCurs.push(unused.code);
+  calc();
+}
+function removeTargetCur(idx) { targetCurs.splice(idx,1); calc(); }
+function swapCur() { const t=fromC; fromC=targetCurs[0]; targetCurs[0]=t; calc(); }
+function setAmt(v,btn) {
+  document.getElementById('amtInput').value = v;
+  document.querySelectorAll('.q-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); calc();
+}
+
+// ── 통화 피커 ──
+function openPicker(which) {
+  picking = which;
+  document.getElementById('sheetOverlay').style.display = 'flex';
+  const cur = which==='from' ? fromC : (which==='to0' ? targetCurs[0] : targetCurs[parseInt(which.replace('to',''))]);
+  document.getElementById('curList').innerHTML = CURS.map(c=>`
+    <div class="cur-opt${c.code===cur?' selected':''}" onclick="selectCur('${c.code}')">
+      <span style="font-size:22px;">${c.flag}</span>
+      <div><div style="font-size:14px;font-weight:500;color:var(--t1);">${c.code}</div>
+        <div style="font-size:12px;color:var(--t3);">${c.name}</div></div>
+    </div>`).join('');
+}
+function closeSheet() { document.getElementById('sheetOverlay').style.display = 'none'; }
+function selectCur(code) {
+  if (picking==='from') fromC=code;
+  else if (picking==='to0') targetCurs[0]=code;
+  else targetCurs[parseInt(picking.replace('to',''))]=code;
+  closeSheet(); calc();
+}
+function openBudgetCurPicker() {
+  picking = 'budgetCur';
+  document.getElementById('sheetOverlay').style.display = 'flex';
+  document.getElementById('curList').innerHTML = CURS.map(c=>`
+    <div class="cur-opt${c.code===window._budgetCur?' selected':''}" onclick="selectBudgetCur('${c.code}')">
+      <span style="font-size:22px;">${c.flag}</span>
+      <div><div style="font-size:14px;font-weight:500;color:var(--t1);">${c.code}</div>
+        <div style="font-size:12px;color:var(--t3);">${c.name}</div></div>
+    </div>`).join('');
+}
+async function selectBudgetCur(code) {
+  window._budgetCur = code;
+  document.getElementById('budgetCurBadge').textContent = code + ' ▾';
+  closeSheet();
+  if (window._groupCode) await window.fbSaveBudget(window._groupCode, window._budget, window._budgetCur);
+  window.updateBudgetUI();
+}
+
+// ── 그룹 ──
+function generateCode() { return Math.random().toString(36).slice(2,8).toUpperCase(); }
+
+async function createGroup() {
+  const name = document.getElementById('myNameInput').value.trim();
+  if (!name) { showToast('이름을 입력해주세요'); return; }
+  window._myName = name;
+  window._groupCode = generateCode();
+  try {
+    await window.fbCreateGroup(window._groupCode, name);
+    initGroupUI();
+  } catch(e) { showToast('오류: ' + e.message); }
+}
+
+async function joinGroup() {
+  const name = document.getElementById('myNameInput').value.trim();
+  const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  if (!name) { showToast('이름을 입력해주세요'); return; }
+  if (!code) { showToast('그룹 코드를 입력해주세요'); return; }
+  window._myName = name;
+  window._groupCode = code;
+  try {
+    await window.fbJoinGroup(code, name);
+    initGroupUI();
+  } catch(e) { showToast(e.message); window._groupCode=''; window._myName=''; }
+}
+
+function initGroupUI() {
+  document.getElementById('groupSetupArea').style.display = 'none';
+  document.getElementById('expenseMainArea').style.display = 'block';
+  document.getElementById('groupNameDisplay').textContent = '그룹 ' + window._groupCode;
+  // 로컬 스토리지에 저장 (앱 재시작시 자동 복원)
+  localStorage.setItem('cebu_group', JSON.stringify({ code: window._groupCode, name: window._myName }));
+  window.fbSubscribeGroup(window._groupCode);
+  showToast('그룹 참여 완료! 코드: ' + window._groupCode);
+}
+
+function leaveGroup() {
+  window.fbUnsubAll();
+  window._groupCode = ''; window._myName = '';
+  window._expenses = []; window._budget = 0; window._pins = [];
+  localStorage.removeItem('cebu_group');
+  document.getElementById('groupSetupArea').style.display = 'block';
+  document.getElementById('expenseMainArea').style.display = 'none';
+  document.getElementById('myNameInput').value = '';
+  document.getElementById('joinCodeInput').value = '';
+}
+
+// ── 경비 UI ──
+window.renderExpenses = function() {
+  window.updateBudgetUI();
+  const el = document.getElementById('expenseList');
+  const expenses = window._expenses || [];
+  if (!expenses.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--t3);font-size:13px;">지출 내역이 없습니다</div>';
+    return;
+  }
+  el.innerHTML = expenses.map(e => {
+    const cat = CATS.find(c=>c.id===e.cat) || CATS[7];
+    const dateStr = e.date?.seconds ? new Date(e.date.seconds*1000).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : '방금';
+    return `<div class="expense-item">
+      <div class="exp-icon">${cat.emoji}</div>
+      <div class="exp-info">
+        <div class="exp-title">${e.detail||cat.name}<span class="exp-who">${e.who||'나'}</span></div>
+        <div class="exp-meta">${cat.name} · ${dateStr}</div>
+      </div>
+      <div class="exp-right">
+        <div class="exp-val">-${Number(e.amt).toLocaleString('ko-KR')}</div>
+        <div class="exp-cur-label">${e.cur||window._budgetCur}</div>
+      </div>
+      <button class="del-btn" onclick="deleteExpense('${e.id}')"><i class="ti ti-x"></i></button>
+    </div>`;
+  }).join('');
+};
+
+window.updateBudgetUI = function() {
+  const expenses = window._expenses || [];
+  const spent = expenses.reduce((s,e) => {
+    const r = getRate(e.cur||window._budgetCur, window._budgetCur);
+    return s + (r ? e.amt*r : e.amt);
+  }, 0);
+  const remain = window._budget - spent;
+  const pct = window._budget > 0 ? Math.min(100, Math.round(spent/window._budget*100)) : 0;
+  document.getElementById('budgetAmt').textContent = window._budget.toLocaleString('ko-KR');
+  document.getElementById('spentAmt').textContent = fmt(spent, window._budgetCur);
+  document.getElementById('remainAmt').textContent = fmt(remain, window._budgetCur);
+  const fill = document.getElementById('progressFill');
+  fill.style.width = pct + '%';
+  fill.style.background = pct>80 ? 'var(--red)' : pct>50 ? 'var(--amber)' : 'var(--green)';
+  document.getElementById('remainAmt').style.color = remain < 0 ? 'var(--red)' : 'var(--green-text)';
+};
+
+async function deleteExpense(id) {
+  if (!window._groupCode) return;
+  await window.fbDeleteExpense(window._groupCode, id);
+}
+
+function editBudget() {
+  document.getElementById('budgetInput').value = window._budget || '';
+  document.getElementById('budgetSheet').style.display = 'flex';
+}
+async function saveBudget() {
+  const v = parseFloat(document.getElementById('budgetInput').value);
+  if (v >= 0) {
+    window._budget = v;
+    if (window._groupCode) await window.fbSaveBudget(window._groupCode, v, window._budgetCur);
+  }
+  closeSub('budgetSheet');
+  window.updateBudgetUI();
+}
+
+function buildCatGrid() {
+  document.getElementById('catGrid').innerHTML = CATS.map(c=>`
+    <button class="cat-btn${c.id===selCat?' on':''}" onclick="selCatFn('${c.id}',this)">
+      <span class="cat-emoji">${c.emoji}</span><span class="cat-name">${c.name}</span>
+    </button>`).join('');
+  document.getElementById('expCurSel').innerHTML = CURS.map(c=>`
+    <option value="${c.code}"${c.code===window._budgetCur?' selected':''}>${c.flag} ${c.code} - ${c.name}</option>`).join('');
+}
+function selCatFn(id,btn) {
+  selCat = id;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function openExpenseForm() { buildCatGrid(); document.getElementById('expenseSheet').style.display='flex'; }
+async function addExpense() {
+  const amt = parseFloat(document.getElementById('expAmt').value);
+  const detail = document.getElementById('expDetail').value.trim();
+  const cur = document.getElementById('expCurSel').value;
+  if (!amt || amt<=0) { showToast('금액을 입력해주세요'); return; }
+  await window.fbAddExpense(window._groupCode, { cat:selCat, amt, detail, cur, who:window._myName });
+  document.getElementById('expAmt').value = '';
+  document.getElementById('expDetail').value = '';
+  closeSub('expenseSheet');
+}
+
+function showGroupCode() {
+  document.getElementById('groupCodeDisplay').textContent = window._groupCode;
+  document.getElementById('groupCodeSheet').style.display = 'flex';
+}
+function copyCode() {
+  navigator.clipboard.writeText(window._groupCode)
+    .then(()=>showToast('코드 복사됨!'))
+    .catch(()=>showToast('코드: '+window._groupCode));
+}
+
+// ── 탭 전환 ──
+function switchTab(name) {
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-it').forEach(n=>{
+    n.classList.remove('on');
+    n.querySelectorAll('i').forEach(i=>i.style.color='var(--t3)');
+  });
+  document.getElementById('tab-'+name).classList.add('active');
+  const nav = document.getElementById('nav-'+name);
+  nav.classList.add('on');
+  nav.querySelectorAll('i').forEach(i=>i.style.color='var(--blue-text)');
+}
+
+function closeSub(id) { document.getElementById(id).style.display='none'; }
+
+// ── 토스트 ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ── 자동 복원 (localStorage) ──
+function restoreSession() {
+  const saved = localStorage.getItem('cebu_group');
+  if (saved) {
+    try {
+      const { code, name } = JSON.parse(saved);
+      window._groupCode = code; window._myName = name;
+      document.getElementById('groupSetupArea').style.display = 'none';
+      document.getElementById('expenseMainArea').style.display = 'block';
+      document.getElementById('groupNameDisplay').textContent = '그룹 ' + code;
+      window.fbSubscribeGroup(code);
+    } catch(e) { localStorage.removeItem('cebu_group'); }
+  }
+}
+
+// ── PWA Service Worker ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+// ── 초기화 ──
+fetchRates();
+setInterval(fetchRates, 60000);
+restoreSession();
+</script>
+</body>
+</html>
